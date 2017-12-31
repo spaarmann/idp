@@ -1,7 +1,11 @@
+<!doctype html>
 <html>
 
   <head>
+    <meta content="text/html" charset="utf-8" />
+
     <title>IDP</title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
   </head>
 
@@ -20,7 +24,8 @@
         })
         .then(function (json) {
           var times = json.map(e => e.time);
-          var values = json.map(e => e.value);
+          var temperatures = json.map(e => e.temp);
+          var ph = json.map(e => e.ph);
 
           var ctx = document.getElementById("chart").getContext("2d");
           var chart = new Chart(ctx, {
@@ -28,17 +33,22 @@
             data: {
               labels: times,
               datasets: [{
-                label: "Temperature",
-                data: values,
-                yAxisID: "temperature"
+                label: "Temperatur",
+                data: temperatures,
+                yAxisID: "temperature",
+                borderColor: 'rgba(255, 0, 0, 1.0)',
+                backgroundColor: 'rgba(0, 0, 0, 0.0)',
+              }, {
+                label: "PH-Wert",
+                data: ph,
+                yAxisID: "ph",
+                borderColor: 'rgba(0, 0, 255, 1.0)',
+                backgroundColor: 'rgba(0, 0, 0, 0.0)',
               }],
             },
             options: {
               responsive: false,
               scales: {
-                xAxes: [{
-                  display: true,
-                }],
                 yAxes: [{
                   id: "temperature",
                   display: true,
@@ -47,6 +57,15 @@
                   ticks: {
                     beginAtZero: true,
                     max: 30,
+                  },
+                }, {
+                  id: "ph",
+                  display: true,
+                  type: "linear",
+                  position: "right",
+                  ticks: {
+                    beginAtZero: true,
+                    max: 14,
                   },
                 }],
               },
