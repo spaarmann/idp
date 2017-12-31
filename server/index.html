@@ -1,0 +1,60 @@
+<html>
+
+  <head>
+    <title>IDP</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
+  </head>
+
+  <body>
+    <h1>IDP - Algenreaktor - Team Blau</h1>
+
+    <canvas id="chart" width="800" height="400"></canvas>
+
+    <script>
+      window.onload = function() {
+        fetch("/api/values.php?start=2017-12-29+00:00:00&end=2018-01-01+00:00:00").then(function(response) {
+          if (!response.ok) {
+            throw new Error("Error fetching values!");
+          }
+          return response.json();
+        })
+        .then(function (json) {
+          var times = json.map(e => e.time);
+          var values = json.map(e => e.value);
+
+          var ctx = document.getElementById("chart").getContext("2d");
+          var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: times,
+              datasets: [{
+                label: "Temperature",
+                data: values,
+                yAxisID: "temperature"
+              }],
+            },
+            options: {
+              responsive: false,
+              scales: {
+                xAxes: [{
+                  display: true,
+                }],
+                yAxes: [{
+                  id: "temperature",
+                  display: true,
+                  type: "linear",
+                  position: "left",
+                  ticks: {
+                    beginAtZero: true,
+                    max: 30,
+                  },
+                }],
+              },
+            },
+          });
+        });
+      }
+    </script>
+  </body>
+
+</html>

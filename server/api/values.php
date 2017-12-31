@@ -28,9 +28,18 @@ if (!$stmt->execute()) {
 }
 
 if ($result = $stmt->get_result()) {
+    $json = "[";
+
     while ($row = $result->fetch_assoc()) {
-        printf("%s => %s°C<br />", $row["time"], $row["value"]);
+        //printf('{ "time": "%s", "value": "%s"}, ', $row["time"], $row["value"]);
+        $json = $json . '{ "time": "' . $row["time"] . '", "value": "' . $row["value"] . '"},';
     }
+
+    $json = substr($json, 0, strlen($json)-1);
+    $json = $json . ']';
+
+    echo $json;
+
     $result->free();
 }
 
