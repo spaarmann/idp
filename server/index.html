@@ -6,7 +6,15 @@
 
     <title>IDP</title>
 
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="material-datetime-picker.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rome/2.1.22/rome.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+    <script src="material-datetime-picker.js" charset="utf-8"></script>
   </head>
 
   <body>
@@ -14,64 +22,111 @@
 
     <canvas id="chart" width="800" height="400"></canvas>
 
+    <div>
+      <button type="button" id="btn-start-time">Anfangszeit auswählen</button>
+      <button type="button" id="btn-end-time">Endzeit auswählen</button>
+      <button type="button" id="btn-update">Update</button>
+    </div>
+
     <script>
       window.onload = function() {
-        fetch("/api/values.php?start=2017-12-29+00:00:00&end=2018-01-01+00:00:00").then(function(response) {
-          if (!response.ok) {
-            throw new Error("Error fetching values!");
-          }
-          return response.json();
-        })
-        .then(function (json) {
-          var times = json.map(e => e.time);
-          var temperatures = json.map(e => e.temp);
-          var ph = json.map(e => e.ph);
+        var startTime = moment();
+        startTime.hours(0);
+        startTime.minutes(0);
+        startTime.seconds(0);
 
-          var ctx = document.getElementById("chart").getContext("2d");
-          var chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-              labels: times,
-              datasets: [{
-                label: "Temperatur",
-                data: temperatures,
-                yAxisID: "temperature",
-                borderColor: 'rgba(255, 0, 0, 1.0)',
-                backgroundColor: 'rgba(0, 0, 0, 0.0)',
+        var endTime = moment();
+        endTime.hours(23);
+        endTime.minutes(59);
+        endTime.seconds(59);
+
+        const startPicker = new MaterialDatetimePicker()
+          .on('submit', (val) => startTime = val);
+        const endPicker = new MaterialDatetimePicker()
+          .on('submit', (val) => endTime = val);
+
+        $("#btn-start-time").on('click', () => startPicker.open());
+        $("#btn-end-time").on('click', () => endPicker.open());
+        
+        // Create chart
+        var ctx = document.getElementById("chart").getContext("2d");
+        var options = {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [{
+              label: "Temperatur",
+              data: [],
+              yAxisID: "temperature",
+              borderColor: 'rgba(255, 0, 0, 1.0)',
+              backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            }, {
+              label: "PH-Wert",
+              data: [],
+              yAxisID: "ph",
+              borderColor: 'rgba(0, 0, 255, 1.0)',
+              backgroundColor: 'rgba(0, 0, 0, 0.0)',
+            }],
+          },
+          options: {
+            responsive: false,
+            scales: {
+              yAxes: [{
+                id: "temperature",
+                scaleLabel: {
+                  display: true,
+                  labelString: '°C',
+                },
+                display: true,
+                type: "linear",
+                position: "left",
+                ticks: {
+                  beginAtZero: true,
+                  max: 30,
+                },
               }, {
-                label: "PH-Wert",
-                data: ph,
-                yAxisID: "ph",
-                borderColor: 'rgba(0, 0, 255, 1.0)',
-                backgroundColor: 'rgba(0, 0, 0, 0.0)',
+                id: "ph",
+                scaleLabel: {
+                  display: true,
+                  labelString: 'PH',
+                },
+                display: true,
+                type: "linear",
+                position: "right",
+                ticks: {
+                  beginAtZero: true,
+                  max: 14,
+                },
               }],
             },
-            options: {
-              responsive: false,
-              scales: {
-                yAxes: [{
-                  id: "temperature",
-                  display: true,
-                  type: "linear",
-                  position: "left",
-                  ticks: {
-                    beginAtZero: true,
-                    max: 30,
-                  },
-                }, {
-                  id: "ph",
-                  display: true,
-                  type: "linear",
-                  position: "right",
-                  ticks: {
-                    beginAtZero: true,
-                    max: 14,
-                  },
-                }],
-              },
-            },
+          },
+        };
+
+        var chart = new Chart(ctx, options);
+
+        var update = function() {
+          var format = "YYYY-MM-DD+HH:mm:ss";
+          fetch("/api/values.php?start=" + startTime.format(format) + "&end=" + endTime.format(format)).then(function(response) {
+            if (!response.ok) {
+              throw new Error("Error fetching values!");
+            }
+            return response.json();
+          })
+          .then(function (json) {
+            var times = json.map(e => e.time);
+            var temperatures = json.map(e => e.temp);
+            var ph = json.map(e => e.ph);
+
+            options.data.labels = times;
+            options.data.datasets[0].data = temperatures;
+            options.data.datasets[1].data = ph;
+
+            chart.update();
           });
-        });
+        }
+
+        $("#btn-update").on('click', () => update());
+        update();
       }
     </script>
   </body>
