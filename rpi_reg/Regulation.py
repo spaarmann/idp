@@ -1,18 +1,23 @@
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 from Sensor import *
+import datetime
 import time
 
+GPIO.setmode(GPIO.BCM)
 
 #PIN und Sensorkonfigurationen
-PINCO2 = 1 #CO2
-PINGAS = 2 #Druckluft
-PINFOOD = 3 #Dünger
-PINTEMP = 4
-PINPH = 5
+PINCO2 = 17 #CO2
+PINGAS = 27 #Druckluft
+PINFOOD = 22 #Dünger
+
+#(
+PINTEMP = 23
+PINPH = 24
 
 #Sensorinitalisierung
 tsens = Temperatursensor(PINTEMP)
 phsens = PHsensor(PINPH)
+#)
 
 #Zustände
 Co2 = False #CO2 Magnetventil öffnen?
@@ -21,14 +26,19 @@ Food= False # Dünger?
 temp = 0 # Aktuelle Temperatur
 ph = 0 # Aktueller PH-Wert
 
-#Konfigurationsmöglichkeiten (+ Siehe calculateState)
-changeStateSeconds = 10
+#Konfigurationsmöglichkeiten (+ Siehe calculateState)-----------------------------------
 
-sleepTime = 5 # Pause zwischen den Aktualisiervorgängen
+#Test für Zeitabhängigkeit:
+#Start und Endzeit(--,--) <= (Stunde, Minute)
+st = datetime.time(8,00).strftime("%H:%M:%S")
+et = datetime.time(20,00).strftime("%H:%M:%S")
 
-#Hilfs- und Zählvariablen 
-lastStateChange = 0 # Sekunden
+sleepTime = 10 # Pause zwischen den Aktualisiervorgängen #in Sekunden
 
+#Hilfs- und Zählvariablen
+
+
+#---------------------------------------------------------------------------------------
 
 
 #Sensorwerte einlesen und abspeichern
@@ -52,37 +62,50 @@ def calculateState():
     global Gas
     global Food
     global lastStateChange
+    #----------------------
 
-  
+    now = datetime.datetime.now()
+    n = now.strftime("%H:%M")
 
-   
 
-    print("\n\nLetzte : ", lastStateChange, " Sek.")
+    if isInTimePeriod(st, et, n):
+        print("Innerhalb Zeitspanne")
+        Co2 = True
+        Gas = True
+        Food = True
+    else:
+        print("Außerhalb Zeitspanne")
+        Co2 = False
+        Gas = False
+        Food = False
 
-    if lastStateChange >= changeStateSeconds:
-        lastStateChange = 0
-        Co2 = switchState(Co2)
-        Gas = switchState(Gas)
-        Food = switchState(Food)
-        
-    lastStateChange += sleepTime
+    #----------------------
     return
 
 #Zustände ausführen, Geräte/Pins schalten
 def performState():
-    #GPIO.output(PINCO2, co2)
+    GPIO.output(PINCO2, Co2)
+    GPIO.output(PINFOOD, Food)
+    GPIO.output(PINGAS, Gas)
     pass
 
-#Kleine Hilfsmethode, Zur Ausgabe des Zustandes       
+#Kleine Hilfsmethode, Zur Ausgabe des Zustandes
 def getSwitchString(state):
     if state:
         return "AN"
     else:
         return "AUS"
 
+def isInTimePeriod(startTime, endTime, nowTime):
+    if startTime < endTime:
+        return nowTime >= startTime and nowTime <= endTime
+    else: #Over midnight
+        return nowTime >= startTime or nowTime <= endTime
+
 def initPins():
-    #GPIO.setmode...
-    pass
+    GPIO.setup(PINCO2, GPIO.OUT)
+    GPIO.setup(PINGAS, GPIO.OUT)
+    GPIO.setup(PINFOOD, GPIO.OUT)
 
 #Daten loggen + an Server senden/Kommunikation ausführen...
 def logState():
@@ -96,8 +119,8 @@ def logState():
 
 
 
-
 if __name__ == "__main__":
+    initPins();
     while True:
         readSensors()
         calculateState()
