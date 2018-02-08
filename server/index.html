@@ -23,10 +23,12 @@
     <canvas id="chart" width="800" height="400"></canvas>
 
     <div>
-      <button type="button" id="btn-start-time">Anfangszeit auswählen</button>
+      <button type="button" id="btn-start-time">Startzeit auswählen</button>
       <button type="button" id="btn-end-time">Endzeit auswählen</button>
       <button type="button" id="btn-update">Update</button>
     </div>
+
+    <a href="./enter_measurement.html">Nährstoffkonzentrationsmesswert eingeben.</a>
 
     <script>
       window.onload = function() {
@@ -105,7 +107,7 @@
         var chart = new Chart(ctx, options);
 
         var update = function() {
-          var format = "YYYY-MM-DD+HH:mm:ss";
+          const format = "YYYY-MM-DD+HH:mm:ss";
           fetch("/api/values.php?start=" + startTime.format(format) + "&end=" + endTime.format(format)).then(function(response) {
             if (!response.ok) {
               throw new Error("Error fetching values!");

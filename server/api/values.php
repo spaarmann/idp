@@ -6,7 +6,7 @@ $start_time = urldecode($_GET['start']);
 $end_time = urldecode($_GET['end']);
 
 
-if (isset($_GET['valugen-step'])) {
+if (isset($_GET['valuegen-step'])) {
     $step = $_GET['valuegen-step'];
     $start = date_create_from_format($date_format, $start_time);
     $end = date_create_from_format($date_format, $end_time);
@@ -24,6 +24,7 @@ if (isset($_GET['valugen-step'])) {
     $mysqli->query("START TRANSACTION");
 
     while ($current < $end) {
+        printf("Generating value <br />");
         $current_str = date_format($current, $date_format);
 
         $t = (float)rand() / (float)getrandmax() * 10.0 + 17.0;
@@ -38,6 +39,7 @@ if (isset($_GET['valugen-step'])) {
 
     $stmt->close();
     $mysqli->query("COMMIT");
+    echo "Generated test values!";
 } else {
     if (!($stmt = $mysqli->prepare("SELECT time, temperature, ph FROM measurements WHERE time BETWEEN ? AND ?"))) {
         die("Failed to prepare statement! " . $mysqli->errno . ") " . $mysqli->error);

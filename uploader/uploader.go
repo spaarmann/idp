@@ -15,17 +15,16 @@ func transmitValue(time time.Time, temperature float64, ph float64) {
 	timeStr := time.Format(format)
 	tempStr := strconv.FormatFloat(temperature, 'f', -1, 64)
 	phStr := strconv.FormatFloat(ph, 'f', -1, 64)
-	url := "https://idp.s-paarmann.de/api/insert.php?time=" + timeStr + "&temperature=" + tempStr + "&ph=" + phStr + "&key=sYc2UhPSlCMF7OwtY4Xd"
+	url := "https://idp.s-paarmann.de/api/insert.php?table=measurements&time=" + timeStr + "&temperature=" + tempStr + "&ph=" + phStr + "&key=sYc2UhPSlCMF7OwtY4Xd"
 	fmt.Println("URL:", url)
 	http.Get(url)
 }
 
 // TODO: Error Handling
 
-func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		input := scanner.Text()
+func handleInputs(inputs chan string) {
+	for {
+		input := <-inputs
 		parts := strings.Split(input, " ")
 
 		time, _ := time.Parse(format, parts[0])
@@ -33,5 +32,18 @@ func main() {
 		ph, _ := strconv.ParseFloat(parts[2], 64)
 
 		go transmitValue(time, temperature, ph)
+	}
+}
+
+func main() {
+	inputs := make(chan string, 5)
+
+	go handleInputs(inputs)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		input := scanner.Text()
+
+		inputs <- input
 	}
 }
