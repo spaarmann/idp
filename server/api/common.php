@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$API_KEY = getevn("api_key");
+$API_KEY = getenv("api_key");
 $PASSWORD = getenv("api_pass");
 
 $username = getenv("idp_sql_user");

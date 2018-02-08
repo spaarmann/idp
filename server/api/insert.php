@@ -29,9 +29,9 @@ if ($table === "measurements") {
 }
 
 if ($table === "measurements") {
-  $stmtstr = "INSERT INTO measurements (time, temperature, ph) VALUES (?, ?, ?)";
+  $stmtstr = "INSERT INTO `measurements` (`time`, `temperature`, `ph`) VALUES (?, ?, ?)";
 } else if ($table === "nutrients") {
-  $stmtstr = "INSERT INTO nutrients (time, measurement) VALUES (?, ?)";
+  $stmtstr = "INSERT INTO `nutrients` (`time`, `measurement`) VALUES (?, ?)";
 }
 
 if (!($stmt = $mysqli->prepare($stmtstr))) {
@@ -55,4 +55,5 @@ if (!$stmt->execute()) {
 $stmt->close();
 $mysqli->close();
 
+printf("Inserted values successfully!");
 ?>

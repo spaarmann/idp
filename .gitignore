@@ -1,1 +1,4 @@
 *.exe
+uploader/idp
+uploader/uploader_data/
+uploader/uploader_errors.txt
