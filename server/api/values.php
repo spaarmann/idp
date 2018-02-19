@@ -53,8 +53,8 @@ if (isset($_GET['valuegen-step'])) {
         die("Failed to execute statement! " . $mysqli->errno . ") " . $mysqli->error);
     }
 
+    $json = '{ "measurements": [';
     if ($result = $stmt->get_result()) {
-        $json = "[";
         $anyValues = false;
 
         while ($row = $result->fetch_assoc()) {
@@ -64,12 +64,44 @@ if (isset($_GET['valuegen-step'])) {
 
         if ($anyValues)
             $json = substr($json, 0, strlen($json)-1);
-        $json = $json . ']';
-
-        echo $json;
+        $json = $json . '],';
 
         $result->free();
     }
+
+    $stmt->close();
+
+    if (!($stmt = $mysqli->prepare("SELECT time, measurement FROM nutrients WHERE time BETWEEN ? AND ?"))) {
+        die("Failed to prepare statement! " . $mysqli->errno . ") " . $mysqli->error);
+    }
+
+    if (!$stmt->bind_param("ss", $start_time, $end_time)) {
+        die("Failed to bind params! " . $mysqli->errno . ") " . $mysqli->error);
+    }
+
+    if (!$stmt->execute()) {
+        die("Failed to execute statement! " . $mysqli->errno . ") " . $mysqli->error);
+    }
+
+    if ($result = $stmt->get_result()) {
+        $anyValues = false;
+
+        $json = $json . '"nutrients": [';
+
+        while ($row = $result->fetch_assoc()) {
+            $anyValues = true;
+            $json = $json . '{ "time": "' . $row["time"] . '", "measurement": "' . $row["measurement"] . '"},';
+        }
+
+        if ($anyValues)
+            $json = substr($json, 0, strlen($json)-1);
+        $json = $json . ']';
+
+        $result->free();
+    }
+
+    $json = $json . '}';
+    echo $json;
 
     $stmt->close();
 }

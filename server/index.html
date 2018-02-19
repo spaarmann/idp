@@ -14,13 +14,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rome/2.1.22/rome.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="material-datetime-picker.js" charset="utf-8"></script>
   </head>
 
   <body>
     <h1>IDP - Algenreaktor - Team Blau</h1>
 
-    <canvas id="chart" width="800" height="400"></canvas>
+    <div style="display: inline-block">
+      <canvas id="chart" width="800" height="400"></canvas>
+    </div>
+
+    <div style="display: inline-block">
+      <table id="table" width="200"></table>
+    </div>
 
     <div>
       <button type="button" id="btn-start-time">Startzeit auswählen</button>
@@ -115,15 +122,29 @@
             return response.json();
           })
           .then(function (json) {
-            var times = json.map(e => e.time);
-            var temperatures = json.map(e => e.temp);
-            var ph = json.map(e => e.ph);
+            var measurements = json.measurements;
+            var times = measurements.map(e => e.time);
+            var temperatures = measurements.map(e => e.temp);
+            var ph = measurements.map(e => e.ph);
 
             options.data.labels = times;
             options.data.datasets[0].data = temperatures;
             options.data.datasets[1].data = ph;
 
             chart.update();
+
+            var nutrients = json.nutrients;
+            var tableData = nutrients.map(e => [e.time, e.measurement]);
+            $('#table').DataTable({
+              destroy: true,
+              paging: false,
+              searching: false,
+              columns: [
+                { title: "Zeitpunkt" },
+                { title: "Messwert" },
+              ],
+              data: tableData
+            });
           });
         }
 
