@@ -1,0 +1,2 @@
+#Siehe Config.txt.example.txt zur Hilfe
+#Die Datei kann hierrein kopiert und eingefügt werden

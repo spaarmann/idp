@@ -1,0 +1,68 @@
+#(FÜR KOMMENTARE MUSS EIN # DIREKT AN ERSTER (ohne Leerzeichen davor) STELLE STEHEN!!!)
+
+#Um Einstellungen vorzunehmen wie folgt vorgehen:
+# Als erstes den Variablen-Namen (ohne Leerzeichen davor), 
+# dann EIN Leerzeichen, dann den Wert als ganze Integer Zahl
+
+#Bei nicht gesetzten Variablen (oder einer leeren Config-Datei) 
+#werden die im Quellcode gesetzten default-Werte übernommen
+
+#Beispiele und alle bisher möglichen Variablen:
+
+#PIN-KONFIGURATION (nach WiringPi-Festlegung)
+PIN_AIR 3
+PIN_CO2 2
+
+#WARTEZEITEN----- In Millisekunden----------------------------------
+
+#Allgemeine Wartezeit (möglichst niedrig, da auch PWM betroffen!)
+WAITINGTIME 20
+
+#Loggen (Werte ausgeben + an Server senden)
+LOGWAITINGTIME 600000
+
+#Sensoren einlesen + Werte neu errechnen
+READANDCALCWAITINGTIME 5000
+
+#Weitere Variablen:
+
+#----------
+#PH-Werte wie folgt eingeben (da keine Komma erlaubt):
+# [Gewünschter PH-Wert mit einer Nachkommastelle] * 10
+# zum Beispiel: PH: 6.8 => 68
+
+
+#PH_TOLERANCE 05
+#NIGHT_AIM_PH 68   
+#DAY_AIM_PH 55 
+
+#---------
+ 
+#Uhrzeiten in Minuten eingeben (8 Uhr = 8*60 = 480) => (Stunde * 60 + Minute)
+#8:00 = 480
+#DAY_START 480 
+#22:00 = 1320
+#NIGHT_START 1320
+
+#Zeiten in Millisekunden
+
+#DAY_RAISE_PH_CO2_ON_TIME_MS
+#DAY_RAISE_PH_CO2_OFF_TIME_MS
+#DAY_REDUCE_PH_CO2_ON_TIME_MS
+#DAY_REDUCE_PH_CO2_OFF_TIME_MS
+
+#DAY_RAISE_PH_AIR_ON_TIME_MS
+#DAY_RAISE_PH_AIR_OFF_TIME_MS
+#DAY_REDUCE_PH_AIR_ON_TIME_MS
+#DAY_REDUCE_PH_AIR_OFF_TIME_MS
+
+#NIGHT_RAISE_PH_CO2_ON_TIME_MS
+#NIGHT_RAISE_PH_CO2_OFF_TIME_MS
+#NIGHT_REDUCE_PH_CO2_ON_TIME_MS
+#NIGHT_REDUCE_PH_CO2_OFF_TIME_MS
+
+#NIGHT_RAISE_PH_AIR_ON_TIME_MS
+#NIGHT_RAISE_PH_AIR_OFF_TIME_MS
+#NIGHT_REDUCE_PH_AIR_ON_TIME_MS
+#NIGHT_REDUCE_PH_AIR_OFF_TIME_MS
+
