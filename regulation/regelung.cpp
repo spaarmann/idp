@@ -9,19 +9,24 @@
 #include <ctime>
 #include "includes/Date.h"
 
-Regelung::Regelung() //Konstruktor, Alles initalisieren
+Regelung::Regelung(bool testMode) //Konstruktor, Alles initalisieren
 {
     air = false;
     co2 = false;
+
+    this->testMode = testMode;
+
     tempValue = 0;
     phValue = 0;
 
-    if(! pico_general_init(&picohandler))
-        running = false;
+    if (!testMode) {
+        if(! pico_general_init(&picohandler))
+            running = false;
 
 
-    tempSensor = new pico_Sensor(&picohandler, CONFIGURATION::CH_TEMP);
-    phSensor = new pico_Sensor(&picohandler, CONFIGURATION::CH_PH);
+        tempSensor = new pico_Sensor(&picohandler, CONFIGURATION::CH_TEMP);
+        phSensor = new pico_Sensor(&picohandler, CONFIGURATION::CH_PH);
+    }
 
     pidAir =  new somPID(60, 55);
     pidCo2 = new somPID(60, 55);
@@ -32,6 +37,8 @@ Regelung::Regelung() //Konstruktor, Alles initalisieren
 
     digitalWrite (CONFIGURATION::PIN_AIR, false) ;
     digitalWrite (CONFIGURATION::PIN_CO2, false) ;
+
+    output = new Output("uploader_input");
 
     running = true;
 
@@ -53,7 +60,12 @@ Regelung::Regelung() //Konstruktor, Alles initalisieren
 
 Regelung::~Regelung()
 {
-    UsbDrDaqCloseUnit(picohandler.handle);
+    if (!testMode)
+        UsbDrDaqCloseUnit(picohandler.handle);
+    
+    delete output;
+    delete pidAir;
+    delete pidCo2;
 }
 
 bool Regelung::isRunning()
@@ -69,7 +81,6 @@ void Regelung::update()
     clock_gettime(CLOCK_MONOTONIC, &ts_current);
     long double now = ts_current.tv_sec*1000 + ((long double) ts_current.tv_nsec/1000000); //Millisekunden an now übergeben
 
-
     long double tdiff;  //Temporäre Variable um Zeitdifferenzen zu berechnen
 
     tdiff = now - lastCalc;
@@ -77,7 +88,7 @@ void Regelung::update()
     {
       readSensors();
       calculateState();
-      lastCalc = clock();
+      lastCalc = now;
     }
 
     //performState immer ausführen! Nötig für schnelle PWM!!!
@@ -94,8 +105,13 @@ void Regelung::update()
 
 void Regelung::readSensors()
 {
-    tempValue = tempSensor->getValue();
-    phValue = phSensor->getValue();
+    if (!testMode) {
+        tempValue = tempSensor->getValue();
+        phValue = phSensor->getValue();
+    } else {
+        tempValue = 20;
+        phValue = CONFIGURATION::TEST_PH_CURRENT;
+    }
 }
 
 void Regelung::calculateState()
@@ -108,7 +124,7 @@ void Regelung::calculateState()
     Die Angaben sind in Minuten (8:30 Uhr wäre z.B.: 8*60 + 30 = 510)
     */
     bool Nacht = false;
-    bool Tag = false;
+    bool Tag = true;
 
     if ((Nacht) && phValue < (CONFIGURATION::NIGHT_AIM_PH - CONFIGURATION::PH_TOLERANCE) )
     {
@@ -149,27 +165,5 @@ void Regelung::performState(long double now)
 
 void Regelung::logState(long double now)
 {
-    string nowtime = Date::get_date() + "+" + Date::get_time(1);
-
-    cout << nowtime << endl;
-    //std::string state[] = {"AUS", "AN"} ;
-    //cout << "Druckluft: \t" << state[air] << endl;
-    //cout << "CO2: \t\t" << state[co2] << endl;
-    cout << "Temperatur: \t" << tempValue << endl;
-    cout << "PH: \t\t " << phValue << endl;
-
-
-    /*Send to Server / Write to file (nowtime, Co2, ph)*/
-    std::fstream f;
-    f.open("state.txt", std::ios::out);
-
-    if(f.good()) //Datei konnte geöffnet/erstellt werden
-    {
-      f << nowtime << endl;
-      f << "Temperatur: \t" << tempValue << endl;
-      f << "PH: \t\t " << phValue << endl;
-    }
-
-    f.close();
-
+    output.Log(this->tempValue, this->phValue);
 }

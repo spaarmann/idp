@@ -23,6 +23,8 @@ namespace CONFIGURATION{
   //Sensoren auslesen und Ansteuerung neu berechnen
   int READANDCALCWAITINGTIME= 5000; //ms.
 
+  float TEST_PH_CURRENT = 6.0;
+
   float PH_TOLERANCE = 0.5;
   float NIGHT_AIM_PH = 6.8;
   float DAY_AIM_PH = 5.5;
@@ -64,6 +66,7 @@ bool change_variable(std::string s, long int v)
     else if (s == "PIN_CO2")     PIN_CO2 = v;
     else if( s == "WAITINGTIME")     WAITINGTIME = v;
     else if( s == "LOGWAITINGTIME") LOGWAITINGTIME = v;
+    else if (s == "TEST_PH_CURRENT") TEST_PH_CURRENT = v/10;
     else if( s == "READANDCALCWAITINGTIME") READANDCALCWAITINGTIME = v;
     else if( s == "PH_TOLERANCE") PH_TOLERANCE = v/10;
     else if( s == "NIGHT_AIM_PH") NIGHT_AIM_PH = v/10;
@@ -107,7 +110,7 @@ bool read_config()//DATEI: config.txt auslesen und die Variablen (oben) setzen
     {
       std::getline(f, buf);        // Lese eine Zeile
       //std::cout << buf << std::endl;    // Zeige sie auf dem Bildschirm
-      if(buf[0] == '#' || buf[0] == ' ' || buf[0] == '\n' || buf.empty() || (! buf.find(' '))) //Kommentar oder leere/ungültige Zeile überspringen
+      if(buf[0] == '#' || buf[0] == ' ' || buf[0] == '\n' || buf[0] == '\r' || buf.empty() || (! buf.find(' '))) //Kommentar oder leere/ungültige Zeile überspringen
         continue;
 
       std::size_t spos = buf.find(' ');
@@ -128,6 +131,7 @@ void print_configuration()
     std::cout << "PIN_CO2: " << PIN_CO2 << std::endl;
     std::cout << "WAITINGTIME: " << WAITINGTIME << std::endl;
     std::cout << "LOGWAITINGTIME: " << LOGWAITINGTIME << std::endl;
+    std::cout << "TEST_PH_CURRENT: " << TEST_PH_CURRENT << std::endl;
     std::cout << "READANDCALCWAITINGTIME: " << READANDCALCWAITINGTIME << std::endl;
 
     std::cout << "PH_TOLERANCE: " << PH_TOLERANCE << std::endl;

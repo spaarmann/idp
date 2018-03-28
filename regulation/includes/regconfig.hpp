@@ -24,6 +24,7 @@ extern int LOGWAITINGTIME;// = 1000; //ms.
 //Sensoren auslesen und Ansteuerung neu berechnen
 extern int READANDCALCWAITINGTIME;// = 5000; //ms.
 
+extern float TEST_PH_CURRENT;
 
 extern float PH_TOLERANCE;
 extern float NIGHT_AIM_PH;

@@ -1,13 +1,13 @@
-#(FÜR KOMMENTARE MUSS EIN # DIREKT AN ERSTER (ohne Leerzeichen davor) STELLE STEHEN!!!)
+#(Fï¿½R KOMMENTARE MUSS EIN # DIREKT AN ERSTER (ohne Leerzeichen davor) STELLE STEHEN!!!)
 
 #Um Einstellungen vorzunehmen wie folgt vorgehen:
 # Als erstes den Variablen-Namen (ohne Leerzeichen davor), 
 # dann EIN Leerzeichen, dann den Wert als ganze Integer Zahl
 
 #Bei nicht gesetzten Variablen (oder einer leeren Config-Datei) 
-#werden die im Quellcode gesetzten default-Werte übernommen
+#werden die im Quellcode gesetzten default-Werte ï¿½bernommen
 
-#Beispiele und alle bisher möglichen Variablen:
+#Beispiele und alle bisher mï¿½glichen Variablen:
 
 #PIN-KONFIGURATION (nach WiringPi-Festlegung)
 PIN_AIR 3
@@ -15,7 +15,7 @@ PIN_CO2 2
 
 #WARTEZEITEN----- In Millisekunden----------------------------------
 
-#Allgemeine Wartezeit (möglichst niedrig, da auch PWM betroffen!)
+#Allgemeine Wartezeit (mï¿½glichst niedrig, da auch PWM betroffen!)
 WAITINGTIME 20
 
 #Loggen (Werte ausgeben + an Server senden)
@@ -28,9 +28,10 @@ READANDCALCWAITINGTIME 5000
 
 #----------
 #PH-Werte wie folgt eingeben (da keine Komma erlaubt):
-# [Gewünschter PH-Wert mit einer Nachkommastelle] * 10
+# [Gewï¿½nschter PH-Wert mit einer Nachkommastelle] * 10
 # zum Beispiel: PH: 6.8 => 68
 
+TEST_PH_CURRENT 50
 
 #PH_TOLERANCE 05
 #NIGHT_AIM_PH 68   

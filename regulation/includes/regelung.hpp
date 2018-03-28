@@ -1,5 +1,6 @@
 #pragma once
 #include "sensoren.hpp"
+#include "logger.hpp"
 #include "somPID.hpp"
 #include "pseudo_pwm.hpp"
 #include <ctime>
@@ -9,7 +10,7 @@ using namespace std;
 class Regelung
 {
     public:
-        Regelung();
+        Regelung(bool testMode);
         ~Regelung();
         void update();
         bool isRunning();
@@ -20,6 +21,7 @@ class Regelung
         void performState(long double now);
         void logState(long double now);
 
+        bool testMode;
 
         bool air;
         bool co2;
@@ -37,6 +39,8 @@ class Regelung
         PICO_HANDLER picohandler;
         pico_Sensor *tempSensor;
         pico_Sensor *phSensor;
+
+        Output *output;
 
         bool running;
 
