@@ -98,7 +98,7 @@ void Regelung::update()
 
     if(tdiff > CONFIGURATION::LOGWAITINGTIME)
     {
-      logState(now);
+      logState();
       lastLog = now;
     }
 }
@@ -163,7 +163,7 @@ void Regelung::performState(long double now)
     pwmCo2->run_update(now);
 }
 
-void Regelung::logState(long double now)
+void Regelung::logState()
 {
-    output.Log(this->tempValue, this->phValue);
+    output->Log(this->tempValue, this->phValue);
 }

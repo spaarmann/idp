@@ -19,7 +19,7 @@ class Regelung
         void readSensors();
         void calculateState();
         void performState(long double now);
-        void logState(long double now);
+        void logState();
 
         bool testMode;
 

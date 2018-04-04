@@ -28,8 +28,6 @@ void Output::Log(float temp, float ph) {
   const std::time_t t = time(0);
   std::tm *calendar_time = localtime(&t);
 
-  char buf[3];
-
   std::string string = std::string("") + std::to_string(calendar_time->tm_year + 1900) + "-";
   
   string = append_num(string, calendar_time->tm_mon + 1) + "-";

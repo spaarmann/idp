@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -71,7 +71,7 @@ func handleInputs(inputs *goque.Queue, errorChan chan myError) {
 			continue
 		}
 		input := item.ToString()
-		parts := strings.Split(input, " ")
+		parts := strings.Split(strings.TrimSpace(input), " ")
 
 		if len(parts) != 3 {
 			errorChan <- myError{input, errors.New("Couldn't split into 3 parts")}
@@ -109,11 +109,15 @@ func handleInputs(inputs *goque.Queue, errorChan chan myError) {
 // it's pretty much an abstraction over the actual method of getting
 // input so it can easily be changed.
 func main() {
-	//inputs := make(chan string, 5)
 	errors := make(chan myError, 5)
 
-	q, e := goque.OpenQueue("uploader_data")
-	if e != nil {
+	inFile, err := os.OpenFile("uploader_input", os.O_RDONLY, 0755)
+	if err != nil {
+		panic("Could not open input file!")
+	}
+
+	q, err := goque.OpenQueue("uploader_data")
+	if err != nil {
 		panic("Could not open queue!")
 	}
 	defer q.Close()
@@ -121,13 +125,28 @@ func main() {
 	go handleParseErrors(errors)
 	go handleInputs(q, errors)
 
-	scanner := bufio.NewScanner(os.Stdin)
+	/*scanner := bufio.NewScanner(inFile)
 	for scanner.Scan() {
 		input := scanner.Text()
 
 		_, e := q.EnqueueString(input)
 		if e != nil {
 			fmt.Println("Error enqueing input!", e)
+		}
+	}*/
+
+	bytes := make([]byte, 100)
+	n := 0
+
+	for err == nil || err == io.EOF {
+		n, err = inFile.Read(bytes)
+		if n > 0 {
+			text := string(bytes[:n])
+
+			_, e := q.EnqueueString(text)
+			if e != nil {
+				fmt.Println("Error enqueuing input!", e)
+			}
 		}
 	}
 }
